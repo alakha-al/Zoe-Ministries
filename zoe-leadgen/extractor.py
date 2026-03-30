@@ -5,5 +5,4 @@
 #   - extract_emails(text)         : finds email addresses using regex
 #   - extract_phones(text)         : finds phone numbers using regex
 #   - extract_social_links(html)   : pulls LinkedIn, Facebook, Instagram URLs
-# Each lead dict contains: name, address, phone, email, website, source, scraped_at.
-# Feeds clean data into database.py for storage.
+# Each lead dict: name, address, phone, email, website, source, scraped_at

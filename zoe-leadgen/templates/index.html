@@ -27,7 +27,6 @@
       overflow: hidden;
     }
 
-    /* ── Header ── */
     .card-header {
       background: #3C3489;
       padding: 32px 40px 28px;
@@ -44,7 +43,6 @@
       color: rgba(255,255,255,0.72);
     }
 
-    /* ── Body ── */
     .card-body { padding: 36px 40px 40px; }
 
     .field { margin-bottom: 28px; }
@@ -59,7 +57,7 @@
       margin-bottom: 8px;
     }
 
-    /* ── Tag input ── */
+    /* Tag input */
     .tag-wrapper {
       display: flex;
       flex-wrap: wrap;
@@ -118,7 +116,7 @@
       margin-top: 5px;
     }
 
-    /* ── Checkboxes ── */
+    /* Source checkboxes */
     .source-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -142,10 +140,7 @@
     }
     .source-option:hover { border-color: #3C3489; background: #f5f4ff; }
     .source-option input[type="checkbox"] { display: none; }
-    .source-option.checked {
-      border-color: #3C3489;
-      background: #eeecfb;
-    }
+    .source-option.checked { border-color: #3C3489; background: #eeecfb; }
 
     .checkbox-box {
       width: 18px;
@@ -158,20 +153,13 @@
       justify-content: center;
       transition: border-color 0.18s, background 0.18s;
     }
-    .source-option.checked .checkbox-box {
-      background: #3C3489;
-      border-color: #3C3489;
-    }
+    .source-option.checked .checkbox-box { background: #3C3489; border-color: #3C3489; }
     .checkbox-box svg { display: none; }
     .source-option.checked .checkbox-box svg { display: block; }
 
-    .source-name {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: #1a1a2e;
-    }
+    .source-name { font-size: 0.88rem; font-weight: 500; color: #1a1a2e; }
 
-    /* ── Volume selector ── */
+    /* Volume selector */
     .volume-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -193,16 +181,9 @@
     }
     .volume-option:hover { border-color: #3C3489; background: #f5f4ff; }
     .volume-option input[type="radio"] { display: none; }
-    .volume-option.selected {
-      border-color: #3C3489;
-      background: #eeecfb;
-    }
+    .volume-option.selected { border-color: #3C3489; background: #eeecfb; }
 
-    .volume-number {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #3C3489;
-    }
+    .volume-number { font-size: 1.15rem; font-weight: 700; color: #3C3489; }
     .volume-label {
       font-size: 0.72rem;
       color: #888;
@@ -211,7 +192,7 @@
       letter-spacing: 0.4px;
     }
 
-    /* ── Email input ── */
+    /* Email input */
     input[type="email"] {
       width: 100%;
       padding: 11px 14px;
@@ -223,12 +204,9 @@
       outline: none;
       transition: border-color 0.18s, background 0.18s;
     }
-    input[type="email"]:focus {
-      border-color: #3C3489;
-      background: #fff;
-    }
+    input[type="email"]:focus { border-color: #3C3489; background: #fff; }
 
-    /* ── Submit button ── */
+    /* Submit button */
     .btn-submit {
       width: 100%;
       padding: 14px;
@@ -246,11 +224,8 @@
     .btn-submit:hover  { background: #2e2870; }
     .btn-submit:active { transform: scale(0.99); }
 
-    /* ── Confirmation panel ── */
-    .confirmation {
-      text-align: center;
-      padding: 48px 40px 52px;
-    }
+    /* Confirmation */
+    .confirmation { text-align: center; padding: 48px 40px 52px; }
     .confirm-icon {
       width: 64px;
       height: 64px;
@@ -262,13 +237,7 @@
       margin: 0 auto 20px;
     }
     .confirm-icon svg { color: #3C3489; }
-
-    .confirmation h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #3C3489;
-      margin-bottom: 10px;
-    }
+    .confirmation h2 { font-size: 1.4rem; font-weight: 700; color: #3C3489; margin-bottom: 10px; }
     .confirmation p {
       font-size: 0.95rem;
       color: #555;
@@ -308,13 +277,6 @@
       transition: background 0.18s, color 0.18s;
     }
     .btn-restart:hover { background: #3C3489; color: #fff; }
-
-    /* divider */
-    .divider {
-      border: none;
-      border-top: 1px solid #ebebf0;
-      margin: 0 40px;
-    }
   </style>
 </head>
 <body>
@@ -326,7 +288,6 @@
   </div>
 
   {% if confirmed %}
-  <!-- ── Confirmation view ── -->
   <div class="confirmation">
     <div class="confirm-icon">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
@@ -340,7 +301,6 @@
       the results to <strong>{{ email }}</strong>.
     </p>
     <p>Estimated wait time: <strong>{{ wait }}</strong>.</p>
-
     <div class="confirm-meta">
       <span class="meta-pill">{{ volume }} leads</span>
       <span class="meta-pill">{{ wait }}</span>
@@ -348,12 +308,10 @@
         <span class="meta-pill">{{ kw }}</span>
       {% endfor %}
     </div>
-
     <a class="btn-restart" href="/">Start a new search</a>
   </div>
 
   {% else %}
-  <!-- ── Form view ── -->
   <div class="card-body">
     <form method="POST" action="/" id="lead-form">
 
@@ -365,24 +323,23 @@
                  placeholder="Type a keyword and press Enter…"
                  autocomplete="off" />
         </div>
-        <p class="tag-hint">Add one keyword at a time — press <strong>Enter</strong> or <strong>,</strong> to add.</p>
+        <p class="tag-hint">Press <strong>Enter</strong> or <strong>,</strong> to add a keyword.</p>
       </div>
 
       <!-- Sources -->
       <div class="field">
         <label>Data Sources</label>
-        <div class="source-grid" id="source-grid">
-          {% set sources = [
-            ("google",      "Google Search"),
-            ("youtube",     "YouTube"),
-            ("reddit",      "Reddit"),
-            ("twitter",     "Twitter / X"),
-            ("facebook",    "Facebook"),
-            ("instagram",   "Instagram"),
-            ("church_dir",  "Church Directories"),
-            ("linkedin",    "LinkedIn")
+        <div class="source-grid">
+          {% for value, name in [
+            ("google",     "Google Search"),
+            ("youtube",    "YouTube"),
+            ("reddit",     "Reddit"),
+            ("twitter",    "Twitter / X"),
+            ("facebook",   "Facebook"),
+            ("instagram",  "Instagram"),
+            ("church_dir", "Church Directories"),
+            ("linkedin",   "LinkedIn")
           ] %}
-          {% for value, name in sources %}
           <label class="source-option" onclick="toggleSource(this)">
             <input type="checkbox" name="sources" value="{{ value }}" />
             <span class="checkbox-box">
@@ -400,10 +357,10 @@
       <!-- Volume -->
       <div class="field">
         <label>Lead Volume</label>
-        <div class="volume-grid" id="volume-grid">
+        <div class="volume-grid">
           {% for vol, hint in [(500,"~10 min"),(1000,"~20 min"),(2000,"~40 min"),(5000,"~90 min")] %}
           <label class="volume-option {% if loop.first %}selected{% endif %}"
-                 onclick="selectVolume(this, {{ vol }})">
+                 onclick="selectVolume(this)">
             <input type="radio" name="volume" value="{{ vol }}"
                    {% if loop.first %}checked{% endif %} />
             <span class="volume-number">{{ vol }}</span>
@@ -431,11 +388,15 @@
 </div>
 
 <script>
-  /* ── Tag input ── */
-  const wrapper   = document.getElementById("tag-wrapper");
-  const tagInput  = document.getElementById("tag-input");
-  const form      = document.getElementById("lead-form");
-  let   tags      = [];
+  const wrapper  = document.getElementById("tag-wrapper");
+  const tagInput = document.getElementById("tag-input");
+  const form     = document.getElementById("lead-form");
+  let   tags     = [];
+
+  function escHtml(s) {
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")
+            .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
 
   function renderTags() {
     wrapper.querySelectorAll(".tag").forEach(t => t.remove());
@@ -443,8 +404,7 @@
       const tag = document.createElement("span");
       tag.className = "tag";
       tag.innerHTML = `${escHtml(text)}
-        <button type="button" aria-label="Remove ${escHtml(text)}"
-                onclick="removeTag(${i})">&#x2715;</button>`;
+        <button type="button" onclick="removeTag(${i})">&#x2715;</button>`;
       wrapper.insertBefore(tag, tagInput);
     });
   }
@@ -456,16 +416,9 @@
 
   function removeTag(i) { tags.splice(i, 1); renderTags(); }
 
-  function escHtml(str) {
-    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;")
-              .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  }
-
   tagInput.addEventListener("keydown", e => {
     if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addTag(tagInput.value);
-      tagInput.value = "";
+      e.preventDefault(); addTag(tagInput.value); tagInput.value = "";
     } else if (e.key === "Backspace" && tagInput.value === "" && tags.length) {
       removeTag(tags.length - 1);
     }
@@ -477,26 +430,21 @@
 
   wrapper.addEventListener("click", () => tagInput.focus());
 
-  /* inject hidden inputs on submit so Flask sees the tags */
   form && form.addEventListener("submit", () => {
     tags.forEach(t => {
       const h = document.createElement("input");
-      h.type  = "hidden";
-      h.name  = "keywords";
-      h.value = t;
+      h.type = "hidden"; h.name = "keywords"; h.value = t;
       form.appendChild(h);
     });
   });
 
-  /* ── Source checkboxes ── */
   function toggleSource(el) {
     el.classList.toggle("checked");
-    const cb = el.querySelector("input[type=checkbox]");
-    cb.checked = !cb.checked;
+    el.querySelector("input[type=checkbox]").checked =
+      el.classList.contains("checked");
   }
 
-  /* ── Volume selector ── */
-  function selectVolume(el, val) {
+  function selectVolume(el) {
     document.querySelectorAll(".volume-option").forEach(o => o.classList.remove("selected"));
     el.classList.add("selected");
     el.querySelector("input[type=radio]").checked = true;

@@ -1,10 +1,9 @@
-# requirements.txt
-# Install all dependencies with: pip install -r requirements.txt
+# Install with: pip install -r requirements.txt
 
-flask>=3.0          # Web framework
-requests>=2.31      # HTTP client for scraping
-beautifulsoup4>=4.12 # HTML parsing
-lxml>=5.0           # Fast HTML/XML parser (BeautifulSoup backend)
-openpyxl>=3.1       # Excel (.xlsx) file generation
-apscheduler>=3.10   # Background job scheduler
-python-dotenv>=1.0  # Load .env file into environment variables
+flask>=3.0
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=5.0
+openpyxl>=3.1
+apscheduler>=3.10
+python-dotenv>=1.0
