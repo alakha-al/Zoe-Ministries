@@ -1,9 +1,33 @@
-# app.py
-# Main Flask application entry point.
-# Defines routes for the web UI:
-#   - GET  /          : renders the index page with search form
-#   - POST /search    : triggers a scrape job for the given keyword/location
-#   - GET  /results   : displays leads stored in the database
-#   - GET  /export    : triggers Excel export and returns the file download
-#   - POST /send-mail : sends outreach emails to selected leads
-# Initialises the database on startup and wires together all modules.
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+WAIT_TIMES = {
+    500:  "~10 minutes",
+    1000: "~20 minutes",
+    2000: "~40 minutes",
+    5000: "~90 minutes",
+}
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        keywords = request.form.getlist("keywords")
+        sources  = request.form.getlist("sources")
+        volume   = int(request.form.get("volume", 500))
+        email    = request.form.get("email", "").strip()
+        wait     = WAIT_TIMES.get(volume, "~10 minutes")
+        return render_template(
+            "index.html",
+            confirmed=True,
+            email=email,
+            volume=volume,
+            wait=wait,
+            keywords=keywords,
+            sources=sources,
+        )
+    return render_template("index.html", confirmed=False)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

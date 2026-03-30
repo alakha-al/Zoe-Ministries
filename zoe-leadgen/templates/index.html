@@ -1,9 +1,506 @@
-<!-- templates/index.html -->
-<!-- Main UI for the Zoe Lead Generation app. -->
-<!-- Sections:                                  -->
-<!--   1. Search form: keyword + location input, submit triggers POST /search  -->
-<!--   2. Job status: shows running/scheduled scrape jobs from scheduler.py    -->
-<!--   3. Results table: paginated leads from the database with sort/filter    -->
-<!--   4. Action bar: checkboxes to select leads, Export to Excel, Send Email  -->
-<!-- Extends a base layout (base.html can be added later).                     -->
-<!-- Uses plain HTML + minimal CSS (or Bootstrap) — no JS framework required.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoe Lead Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f4f7;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 16px 64px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(60, 52, 137, 0.10);
+      width: 100%;
+      max-width: 680px;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .card-header {
+      background: #3C3489;
+      padding: 32px 40px 28px;
+    }
+    .card-header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+    .card-header p {
+      margin-top: 6px;
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.72);
+    }
+
+    /* ── Body ── */
+    .card-body { padding: 36px 40px 40px; }
+
+    .field { margin-bottom: 28px; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #3C3489;
+      margin-bottom: 8px;
+    }
+
+    /* ── Tag input ── */
+    .tag-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      background: #f0f0f5;
+      border: 1.5px solid #dddde8;
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: text;
+      min-height: 46px;
+      transition: border-color 0.18s;
+    }
+    .tag-wrapper:focus-within { border-color: #3C3489; background: #fff; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #3C3489;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 4px 10px 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .tag button {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+    .tag button:hover { color: #fff; }
+
+    #tag-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.92rem;
+      color: #1a1a2e;
+      flex: 1;
+      min-width: 140px;
+      padding: 2px 4px;
+    }
+
+    .tag-hint {
+      font-size: 0.78rem;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    /* ── Checkboxes ── */
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (min-width: 480px) {
+      .source-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .source-option {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: #f0f0f5;
+      border: 1.5px solid #dddde8;
+      border-radius: 8px;
+      padding: 10px 13px;
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s;
+      user-select: none;
+    }
+    .source-option:hover { border-color: #3C3489; background: #f5f4ff; }
+    .source-option input[type="checkbox"] { display: none; }
+    .source-option.checked {
+      border-color: #3C3489;
+      background: #eeecfb;
+    }
+
+    .checkbox-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #bbb;
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .source-option.checked .checkbox-box {
+      background: #3C3489;
+      border-color: #3C3489;
+    }
+    .checkbox-box svg { display: none; }
+    .source-option.checked .checkbox-box svg { display: block; }
+
+    .source-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+
+    /* ── Volume selector ── */
+    .volume-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .volume-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      border: 1.5px solid #dddde8;
+      border-radius: 8px;
+      padding: 12px 8px;
+      cursor: pointer;
+      background: #f0f0f5;
+      transition: border-color 0.18s, background 0.18s;
+      user-select: none;
+    }
+    .volume-option:hover { border-color: #3C3489; background: #f5f4ff; }
+    .volume-option input[type="radio"] { display: none; }
+    .volume-option.selected {
+      border-color: #3C3489;
+      background: #eeecfb;
+    }
+
+    .volume-number {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #3C3489;
+    }
+    .volume-label {
+      font-size: 0.72rem;
+      color: #888;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* ── Email input ── */
+    input[type="email"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #dddde8;
+      border-radius: 8px;
+      font-size: 0.93rem;
+      background: #f0f0f5;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    input[type="email"]:focus {
+      border-color: #3C3489;
+      background: #fff;
+    }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: #3C3489;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      transition: background 0.18s, transform 0.1s;
+      margin-top: 4px;
+    }
+    .btn-submit:hover  { background: #2e2870; }
+    .btn-submit:active { transform: scale(0.99); }
+
+    /* ── Confirmation panel ── */
+    .confirmation {
+      text-align: center;
+      padding: 48px 40px 52px;
+    }
+    .confirm-icon {
+      width: 64px;
+      height: 64px;
+      background: #eeecfb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .confirm-icon svg { color: #3C3489; }
+
+    .confirmation h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #3C3489;
+      margin-bottom: 10px;
+    }
+    .confirmation p {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.6;
+      max-width: 420px;
+      margin: 0 auto 6px;
+    }
+    .confirmation p strong { color: #1a1a2e; }
+
+    .confirm-meta {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .meta-pill {
+      background: #f0f0f5;
+      border: 1.5px solid #dddde8;
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #3C3489;
+    }
+
+    .btn-restart {
+      margin-top: 32px;
+      display: inline-block;
+      padding: 10px 28px;
+      border: 2px solid #3C3489;
+      border-radius: 8px;
+      color: #3C3489;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-restart:hover { background: #3C3489; color: #fff; }
+
+    /* divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #ebebf0;
+      margin: 0 40px;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <div class="card-header">
+    <h1>Zoe Lead Generator</h1>
+    <p>Search across multiple platforms and receive a curated lead list by email.</p>
+  </div>
+
+  {% if confirmed %}
+  <!-- ── Confirmation view ── -->
+  <div class="confirmation">
+    <div class="confirm-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </div>
+    <h2>You're all set!</h2>
+    <p>
+      We're collecting up to <strong>{{ volume }} leads</strong> and will email
+      the results to <strong>{{ email }}</strong>.
+    </p>
+    <p>Estimated wait time: <strong>{{ wait }}</strong>.</p>
+
+    <div class="confirm-meta">
+      <span class="meta-pill">{{ volume }} leads</span>
+      <span class="meta-pill">{{ wait }}</span>
+      {% for kw in keywords %}
+        <span class="meta-pill">{{ kw }}</span>
+      {% endfor %}
+    </div>
+
+    <a class="btn-restart" href="/">Start a new search</a>
+  </div>
+
+  {% else %}
+  <!-- ── Form view ── -->
+  <div class="card-body">
+    <form method="POST" action="/" id="lead-form">
+
+      <!-- Keywords -->
+      <div class="field">
+        <label for="tag-input">Keywords</label>
+        <div class="tag-wrapper" id="tag-wrapper">
+          <input id="tag-input" type="text"
+                 placeholder="Type a keyword and press Enter…"
+                 autocomplete="off" />
+        </div>
+        <p class="tag-hint">Add one keyword at a time — press <strong>Enter</strong> or <strong>,</strong> to add.</p>
+      </div>
+
+      <!-- Sources -->
+      <div class="field">
+        <label>Data Sources</label>
+        <div class="source-grid" id="source-grid">
+          {% set sources = [
+            ("google",      "Google Search"),
+            ("youtube",     "YouTube"),
+            ("reddit",      "Reddit"),
+            ("twitter",     "Twitter / X"),
+            ("facebook",    "Facebook"),
+            ("instagram",   "Instagram"),
+            ("church_dir",  "Church Directories"),
+            ("linkedin",    "LinkedIn")
+          ] %}
+          {% for value, name in sources %}
+          <label class="source-option" onclick="toggleSource(this)">
+            <input type="checkbox" name="sources" value="{{ value }}" />
+            <span class="checkbox-box">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
+                   stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1.5 6l3 3 6-6"/>
+              </svg>
+            </span>
+            <span class="source-name">{{ name }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Volume -->
+      <div class="field">
+        <label>Lead Volume</label>
+        <div class="volume-grid" id="volume-grid">
+          {% for vol, hint in [(500,"~10 min"),(1000,"~20 min"),(2000,"~40 min"),(5000,"~90 min")] %}
+          <label class="volume-option {% if loop.first %}selected{% endif %}"
+                 onclick="selectVolume(this, {{ vol }})">
+            <input type="radio" name="volume" value="{{ vol }}"
+                   {% if loop.first %}checked{% endif %} />
+            <span class="volume-number">{{ vol }}</span>
+            <span class="volume-label">{{ hint }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="field">
+        <label for="email">Delivery Email</label>
+        <input type="email" id="email" name="email"
+               placeholder="you@example.com" required />
+      </div>
+
+      <button type="submit" class="btn-submit">
+        Generate leads — email me when ready
+      </button>
+
+    </form>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  /* ── Tag input ── */
+  const wrapper   = document.getElementById("tag-wrapper");
+  const tagInput  = document.getElementById("tag-input");
+  const form      = document.getElementById("lead-form");
+  let   tags      = [];
+
+  function renderTags() {
+    wrapper.querySelectorAll(".tag").forEach(t => t.remove());
+    tags.forEach((text, i) => {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.innerHTML = `${escHtml(text)}
+        <button type="button" aria-label="Remove ${escHtml(text)}"
+                onclick="removeTag(${i})">&#x2715;</button>`;
+      wrapper.insertBefore(tag, tagInput);
+    });
+  }
+
+  function addTag(raw) {
+    const text = raw.trim().replace(/,+$/, "").trim();
+    if (text && !tags.includes(text)) { tags.push(text); renderTags(); }
+  }
+
+  function removeTag(i) { tags.splice(i, 1); renderTags(); }
+
+  function escHtml(str) {
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;")
+              .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  tagInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagInput.value);
+      tagInput.value = "";
+    } else if (e.key === "Backspace" && tagInput.value === "" && tags.length) {
+      removeTag(tags.length - 1);
+    }
+  });
+
+  tagInput.addEventListener("blur", () => {
+    if (tagInput.value.trim()) { addTag(tagInput.value); tagInput.value = ""; }
+  });
+
+  wrapper.addEventListener("click", () => tagInput.focus());
+
+  /* inject hidden inputs on submit so Flask sees the tags */
+  form && form.addEventListener("submit", () => {
+    tags.forEach(t => {
+      const h = document.createElement("input");
+      h.type  = "hidden";
+      h.name  = "keywords";
+      h.value = t;
+      form.appendChild(h);
+    });
+  });
+
+  /* ── Source checkboxes ── */
+  function toggleSource(el) {
+    el.classList.toggle("checked");
+    const cb = el.querySelector("input[type=checkbox]");
+    cb.checked = !cb.checked;
+  }
+
+  /* ── Volume selector ── */
+  function selectVolume(el, val) {
+    document.querySelectorAll(".volume-option").forEach(o => o.classList.remove("selected"));
+    el.classList.add("selected");
+    el.querySelector("input[type=radio]").checked = true;
+  }
+</script>
+</body>
+</html>
