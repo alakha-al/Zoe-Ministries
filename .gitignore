@@ -1,1 +1,4 @@
 __pycache__/
+*.db
+*.sqlite3
+zoe-leadgen/exports/
