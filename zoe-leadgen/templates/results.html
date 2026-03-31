@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads — Zoe Lead Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f4f7;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px 16px 64px;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      max-width: 1100px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .topbar h1 { font-size: 1.4rem; font-weight: 700; color: #3C3489; }
+    .topbar p  { font-size: 0.88rem; color: #666; margin-top: 2px; }
+
+    .btn {
+      display: inline-block;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-primary { background: #3C3489; color: #fff; border: none; }
+    .btn-primary:hover { background: #2e2870; }
+    .btn-outline  { background: #fff; color: #3C3489; border: 2px solid #3C3489; }
+    .btn-outline:hover  { background: #3C3489; color: #fff; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── Summary pills ── */
+    .summary {
+      max-width: 1100px;
+      margin: 0 auto 24px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: #fff;
+      border: 1.5px solid #dddde8;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #3C3489;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      max-width: 1100px;
+      margin: 60px auto;
+      text-align: center;
+      color: #888;
+      font-size: 1rem;
+    }
+    .empty a { color: #3C3489; font-weight: 600; }
+
+    /* ── Table ── */
+    .table-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(60,52,137,0.08);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead {
+      background: #3C3489;
+      color: #fff;
+    }
+    thead th {
+      padding: 13px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid #f0f0f5; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafafe; }
+
+    td {
+      padding: 11px 14px;
+      vertical-align: middle;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    td.wrap { white-space: normal; word-break: break-word; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .badge-google  { background: #e8f0fe; color: #1a73e8; }
+    .badge-reddit  { background: #fff0e8; color: #ff4500; }
+    .badge-default { background: #eeecfb; color: #3C3489; }
+
+    a.social-link {
+      color: #3C3489;
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+    a.social-link:hover { text-decoration: underline; }
+
+    .empty-cell { color: #ccc; }
+
+    /* ── Footer ── */
+    .foot {
+      max-width: 1100px;
+      margin: 20px auto 0;
+      font-size: 0.8rem;
+      color: #aaa;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <h1>Lead Results &mdash; Job #{{ job_id }}</h1>
+      <p>{{ leads | length }} lead{{ 's' if leads | length != 1 else '' }} extracted</p>
+    </div>
+    <div class="actions">
+      <a href="/" class="btn btn-outline">&#8592; New search</a>
+      {% if leads %}
+      <a href="/export/{{ job_id }}" class="btn btn-primary">&#8595; Export to Excel</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Summary pills -->
+  {% if leads %}
+  <div class="summary">
+    {% set sources = leads | map(attribute='source') | unique | list %}
+    {% for s in sources %}
+      <span class="pill">{{ s | title }}</span>
+    {% endfor %}
+    <span class="pill">{{ leads | length }} total</span>
+    {% set with_email = leads | selectattr('email') | list | length %}
+    {% if with_email %}
+      <span class="pill">{{ with_email }} with email</span>
+    {% endif %}
+    {% set with_phone = leads | selectattr('phone') | list | length %}
+    {% if with_phone %}
+      <span class="pill">{{ with_phone }} with phone</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if not leads %}
+  <div class="empty">
+    <p>No leads were collected for this job.</p>
+    <p style="margin-top:10px;"><a href="/">Start a new search</a></p>
+  </div>
+
+  {% else %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Source</th>
+          <th>Name / Title</th>
+          <th>Keyword</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>WhatsApp</th>
+          <th>Location</th>
+          <th>Socials</th>
+          <th>Website</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lead in leads %}
+        <tr>
+          <td>{{ loop.index }}</td>
+
+          <td>
+            {% if lead.source == 'google' %}
+              <span class="badge badge-google">Google</span>
+            {% elif lead.source in ['reddit', 'Christianity', 'Bible', 'Prayer', 'Catholicism', 'Christian'] %}
+              <span class="badge badge-reddit">Reddit</span>
+            {% else %}
+              <span class="badge badge-default">{{ lead.source or '—' }}</span>
+            {% endif %}
+          </td>
+
+          <td class="wrap" title="{{ lead.raw_title }}">
+            {{ lead.name or lead.raw_title or '—' }}
+          </td>
+
+          <td>{{ lead.keyword or '' }}</td>
+
+          <td>
+            {% if lead.email %}
+              <a href="mailto:{{ lead.email }}" class="social-link">{{ lead.email }}</a>
+            {% else %}
+              <span class="empty-cell">—</span>
+            {% endif %}
+          </td>
+
+          <td>{{ lead.phone or '<span class="empty-cell">—</span>' | safe }}</td>
+
+          <td>{{ lead.whatsapp or '<span class="empty-cell">—</span>' | safe }}</td>
+
+          <td>{{ lead.location or '<span class="empty-cell">—</span>' | safe }}</td>
+
+          <td>
+            {% set found = [] %}
+            {% if lead.twitter   %}<a href="{{ lead.twitter }}"   class="social-link" target="_blank" rel="noopener">TW</a>{% set _ = found.append(1) %}{% endif %}
+            {% if lead.instagram %}<a href="{{ lead.instagram }}" class="social-link" target="_blank" rel="noopener"> IG</a>{% set _ = found.append(1) %}{% endif %}
+            {% if lead.facebook  %}<a href="{{ lead.facebook }}"  class="social-link" target="_blank" rel="noopener"> FB</a>{% set _ = found.append(1) %}{% endif %}
+            {% if lead.linkedin  %}<a href="{{ lead.linkedin }}"  class="social-link" target="_blank" rel="noopener"> LI</a>{% set _ = found.append(1) %}{% endif %}
+            {% if lead.youtube   %}<a href="{{ lead.youtube }}"   class="social-link" target="_blank" rel="noopener"> YT</a>{% set _ = found.append(1) %}{% endif %}
+            {% if not found %}<span class="empty-cell">—</span>{% endif %}
+          </td>
+
+          <td>
+            {% if lead.website %}
+              <a href="{{ lead.website }}" class="social-link" target="_blank"
+                 rel="noopener" title="{{ lead.website }}">
+                {{ lead.website | truncate(35, true, '…') }}
+              </a>
+            {% else %}
+              <span class="empty-cell">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="foot">Exported from Zoe Lead Generator</div>
+  {% endif %}
+
+</body>
+</html>
