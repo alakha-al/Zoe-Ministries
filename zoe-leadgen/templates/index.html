@@ -308,8 +308,42 @@
         <span class="meta-pill">{{ kw }}</span>
       {% endfor %}
     </div>
+    <div id="job-status" style="margin-top:20px;font-size:0.9rem;color:#555;"></div>
     <a class="btn-restart" href="/">Start a new search</a>
   </div>
+
+  {% if job_id %}
+  <script>
+    (function () {
+      const jobId     = {{ job_id }};
+      const statusEl  = document.getElementById("job-status");
+      let   interval;
+
+      function poll() {
+        fetch("/status/" + jobId)
+          .then(r => r.json())
+          .then(data => {
+            if (data.status === "running") {
+              statusEl.textContent = "Working… " + data.count + " leads found so far.";
+            } else if (data.status === "done") {
+              clearInterval(interval);
+              statusEl.innerHTML =
+                data.count + " leads ready. " +
+                '<a href="/results/' + jobId + '" ' +
+                'style="color:#3C3489;font-weight:600;">View results &rarr;</a>';
+            } else if (data.status === "error") {
+              clearInterval(interval);
+              statusEl.textContent = "Something went wrong: " + data.error;
+            }
+          })
+          .catch(() => { statusEl.textContent = "Checking status…"; });
+      }
+
+      poll();
+      interval = setInterval(poll, 4000);
+    })();
+  </script>
+  {% endif %}
 
   {% else %}
   <div class="card-body">
