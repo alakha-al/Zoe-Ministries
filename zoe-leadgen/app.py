@@ -130,5 +130,4 @@ def results(job_id):
 
 
 if __name__ == "__main__":
-    # Bound to 0.0.0.0 so it is reachable from the Windows browser via WSL IP
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="localhost", port=5000, debug=False)
